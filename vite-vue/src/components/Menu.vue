@@ -2,16 +2,18 @@
   <div class="menuDiv">
     <div class="realmName">wddxhz.xyz</div>
     <el-menu
-      active-text-color="#1890ff"
+      :active-text-color="textColor"
       background-color="#001529"
       class="el-menu-vertical-demo"
       text-color="#fff"
-      @open="handleOpen"
       :router="true"
-      @close="handleClose"
       :default-openeds="['/article-management']"
+      :default-active="currenPath"
     >
-      <el-menu-item index="/list">
+      <el-menu-item
+        index="/list"
+        @click="handle({ title: '列表信息', parent: '' })"
+      >
         <el-icon><icon-menu /></el-icon>
         <template #title><span>列表信息</span></template>
       </el-menu-item>
@@ -22,18 +24,50 @@
           ></el-icon>
           <span>文章管理</span>
         </template>
-        <el-menu-item index="/article-management/add">新建文章</el-menu-item>
-        <el-menu-item index="/article-management/management"
+        <el-menu-item
+          index="/article-management/add"
+          @click="
+            handle({
+              title: '新建文章',
+              parent: '文章管理',
+            })
+          "
+          >新建文章</el-menu-item
+        >
+        <el-menu-item
+          index="/article-management/management"
+          @click="
+            handle({
+              title: '用户文章列表管理',
+              parent: '文章管理',
+            })
+          "
           >用户文章列表管理</el-menu-item
         >
       </el-sub-menu>
-      <el-menu-item index="/user-list">
+      <el-menu-item
+        index="/user-list"
+        @click="
+          handle({
+            title: '用户管理',
+            parent: '',
+          })
+        "
+      >
         <el-icon
           ><el-icon><Stamp /></el-icon
         ></el-icon>
         <template #title>用户管理</template>
       </el-menu-item>
-      <el-menu-item index="/user-center">
+      <el-menu-item
+        index="/user-center"
+        @click="
+          handle({
+            title: '个人中心',
+            parent: '',
+          })
+        "
+      >
         <el-icon
           ><el-icon><UserFilled /></el-icon
         ></el-icon>
@@ -44,20 +78,40 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import {
   Menu as IconMenu,
   EditPen,
   UserFilled,
   Stamp,
 } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
 
-const isCollapse = ref(true);
-const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
-};
-const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
+const router = useRouter();
+let currenPath = ref<String>(router.currentRoute.value.path);
+
+let textColor = ref("#1890ff");
+
+watch(
+  () => router.currentRoute.value,
+  (nv, ol) => {
+    if (nv.fullPath === "/") {
+      textColor.value = "#fff";
+    } else {
+      textColor.value = "#1890ff";
+    }
+  }
+);
+
+interface Provider {
+  title: string;
+  parent?: string;
+}
+
+const emit = defineEmits(["routeInfo"]);
+
+const handle = (key: Provider) => {
+  emit("routeInfo", key);
 };
 </script>
 
